@@ -1,0 +1,21 @@
+{
+    "name": "semana-agilizei-03",
+    "version": "1.0.0",
+    "main": "index.js",
+    "engines": {
+        "node": "v20.18.0"
+    },
+    "scripts": {
+        "cypress:web": "npx cypress open",
+        "cypress:run:mobile": "npx cypress run --config viewportWidth=411,viewportHeight=823",
+        "cypress:run:web": "npx cypress run --browser chrome"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "description": "",
+    "devDependencies": {
+        "cypress": "^13.17.0",
+        "mocha": "^11.0.1"
+    }
+}
