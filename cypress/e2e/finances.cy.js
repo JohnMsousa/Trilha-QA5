@@ -1,6 +1,6 @@
 /// <reference types="cypress" />
 
-import { format } from "../support/utils";
+import { format, prepareLocalStorage } from "../support/utils";
 
 // cy.viewoirt
 // arquivos de config
@@ -17,9 +17,11 @@ context("Dev Finances Agilizei", () => {
     // afterEach -> depois de cada teste
 
     beforeEach(() => {
-        cy.visit("https://devfinance-agilizei.netlify.app/");
-
-        cy.get("#data-table tbody tr").should("have.length", 0);
+        cy.visit("https://devfinance-agilizei.netlify.app/", {
+            onBeforeLoad: (win) => {
+                prepareLocalStorage(win);
+            },
+        });
     });
     it("Cadastrar entradas", () => {
         cy.get("#transaction .button").click(); // id + classe
@@ -28,7 +30,7 @@ context("Dev Finances Agilizei", () => {
         cy.get("[type=date]").type("2024-12-26"); // atributo
         cy.get("button").contains("Salvar").click(); // tipo e valor
 
-        cy.get("#data-table tbody tr").should("have.length", 1);
+        cy.get("#data-table tbody tr").should("have.length", 3);
         // os dados que foram cadastrados
     });
 
@@ -39,36 +41,21 @@ context("Dev Finances Agilizei", () => {
         cy.get("[type=date]").type("2024-12-26"); // atributo
         cy.get("button").contains("Salvar").click(); // tipo e valor
 
-        cy.get("#data-table tbody tr").should("have.length", 1);
+        cy.get("#data-table tbody tr").should("have.length", 3);
     });
 
     it("Remover entradas e saídas", () => {
-        const entrada = "Mesada";
-        const saida = "KinderOvo";
-
-        cy.get("#transaction .button").click(); // id + classe
-        cy.get("#description").type(entrada); // id
-        cy.get("[name=amount]").type(100); // atributo
-        cy.get("[type=date]").type("2024-12-26"); // atributo
-        cy.get("button").contains("Salvar").click(); // tipo e valor
-
-        cy.get("#transaction .button").click(); // id + classe
-        cy.get("#description").type(saida); // id
-        cy.get("[name=amount]").type(-35); // atributo
-        cy.get("[type=date]").type("2024-12-26"); // atributo
-        cy.get("button").contains("Salvar").click(); // tipo e valor
-
         // estratégia 1: voltar para elemento pai, e avançar para um td img e atributo
 
         cy.get("td.description")
-            .contains(entrada)
+            .contains("Mesada")
             .parent()
             .find("img[onclick*=remove]")
             .click();
 
         // estratégia 2: buscar todos os irmãos, e buscar o que tem img + atributo
         cy.get("td.description")
-            .contains(saida)
+            .contains("Suco Kapo")
             .siblings()
             .children("img[onclick*=remove]")
             .click();
@@ -76,22 +63,7 @@ context("Dev Finances Agilizei", () => {
         cy.get("#data-table tbody tr").should("have.length", 0);
     });
 
-    it.only("Validar saldo com diversas transações", () => {
-        const entrada = "Mesada";
-        const saida = "KinderOvo";
-
-        cy.get("#transaction .button").click(); // id + classe
-        cy.get("#description").type(entrada); // id
-        cy.get("[name=amount]").type(100); // atributo
-        cy.get("[type=date]").type("2024-12-26"); // atributo
-        cy.get("button").contains("Salvar").click(); // tipo e valor
-
-        cy.get("#transaction .button").click(); // id + classe
-        cy.get("#description").type(saida); // id
-        cy.get("[name=amount]").type(-35); // atributo
-        cy.get("[type=date]").type("2024-12-26"); // atributo
-        cy.get("button").contains("Salvar").click(); // tipo e valor
-
+    it("Validar saldo com diversas transações", () => {
         // capturar as linhas com as transações e as colunas com valores
         // capturar o texto dessas colunas
         // formatar esses valores das linhas
@@ -135,3 +107,6 @@ context("Dev Finances Agilizei", () => {
 // - mapear os elementos que vamos interagir
 // - descrever as interações com o cypress
 // - adicionar asserções que a gente precisa
+
+// - 00:03 sem usar o localstorage
+// - 302ms usando o localstorage
